@@ -1,43 +1,43 @@
 -- BLOCO COMPRA COMO REFERÊNCIA
 SELECT 
-  mor.id as match_id,
-  'Compra' as tipo_referencia,
-  c.trade_name as embarcador_referencia,
-  c2.trade_name as embarcador_com_match,
-  mor.updated_at::date as data_atualizacao,
-  mor.backhaul_type as tipo_backhaul,
-  mor.sale_offer_co2 as co2_evitado,
-  mor.vehicle_score as score_veiculo,
-  mor.origin_distance_score as score_origem,
-  mor.destination_distance_score as destino_score,
-  mor.total_distance_origin as desvio_origem,
-  mor.total_distance_destination as desvio_destino,
-  (mor.total_distance_origin + mor.total_distance_destination) as desvio_total,
-  mor.distance_purchase_offer as distancia_oferta_compra,
-  mor.distance_sale_offer as distancia_oferta_venda,
-  mor.purchase_offer_id as id_oferta_compra,
-  i.operation_type as operacao_compra,
-  c.trade_name as embarcador_comprador,
-  i.frequency as frequencia_compra,
-  i.freight_value as valor_compra,
-  i.vehicle_type as tipo_veiculo_compra,
-  i.category as categoria_veiculo_compra,
-  case when i.id_client_origin is null then l.city else cl.city end as cidade_origem_compra,
-  case when i.id_client_origin is null then l.uf else cl.uf end as uf_origem_compra,
-  case when i.id_client_destination is null then l2.city else cl2.city end as cidade_destino_compra,
-  case when i.id_client_destination is null then l2.uf else cl2.uf end as uf_destino_compra,
-  mor.sale_offer_shipper_tariff_id as id_oferta_venda,
-  so.operation_type as operacao_venda,
-  c2.trade_name as embarcador_vendedor,
-  sost.frequency as frequencia_venda,
-  sost.value_total as valor_venda,
-  sost.vehicle_type as tipo_veiculo_venda,
-  sost.vehicle_category as categoria_veiculo_venda,
-  case when LEFT(so.type_location::text, 2) = 'LO' then l3.city else cl3.city end as cidade_origem_venda,
-  case when LEFT(so.type_location::text, 2) = 'LO' then l3.uf else cl3.uf end as uf_origem_venda,
-  case when RIGHT(so.type_location::text, 2) = 'TY' then l4.city else cl4.city end as cidade_destino_venda,
-  case when RIGHT(so.type_location::text, 2) = 'TY' then l4.uf else cl4.uf end as uf_destino_venda,
-  sc."name" as transportadora_venda
+  mor.id AS match_id,
+  'Compra' AS tipo_referencia,
+  c.trade_name AS embarcador_referencia,
+  c2.trade_name AS embarcador_com_match,
+  mor.updated_at::date AS data_atualizacao,
+  mor.backhaul_type AS tipo_backhaul,
+  mor.sale_offer_co2 AS co2_evitado,
+  mor.vehicle_score AS score_veiculo,
+  mor.origin_distance_score AS score_origem,
+  mor.destination_distance_score AS destino_score,
+  mor.total_distance_origin AS desvio_origem,
+  mor.total_distance_destination AS desvio_destino,
+  (mor.total_distance_origin + mor.total_distance_destination) AS desvio_total,
+  mor.distance_purchase_offer AS distancia_oferta_compra,
+  mor.distance_sale_offer AS distancia_oferta_venda,
+  mor.purchase_offer_id AS id_oferta_compra,
+  i.operation_type AS operacao_compra,
+  c.trade_name AS embarcador_comprador,
+  i.frequency AS frequencia_compra,
+  i.freight_value AS valor_compra,
+  i.vehicle_type AS tipo_veiculo_compra,
+  i.category AS categoria_veiculo_compra,
+  CASE WHEN i.id_client_origin IS NULL THEN l.city ELSE cl.city END AS cidade_origem_compra,
+  CASE WHEN i.id_client_origin IS NULL THEN l.uf ELSE cl.uf END AS uf_origem_compra,
+  CASE WHEN i.id_client_destination IS NULL THEN l2.city ELSE cl2.city END AS cidade_destino_compra,
+  CASE WHEN i.id_client_destination IS NULL THEN l2.uf ELSE cl2.uf END AS uf_destino_compra,
+  mor.sale_offer_shipper_tariff_id AS id_oferta_venda,
+  so.operation_type AS operacao_venda,
+  c2.trade_name AS embarcador_vendedor,
+  sost.frequency AS frequencia_venda,
+  sost.value_total AS valor_venda,
+  sost.vehicle_type AS tipo_veiculo_venda,
+  sost.vehicle_category AS categoria_veiculo_venda,
+  CASE WHEN LEFT(so.type_location::text, 2) = 'LO' THEN l3.city ELSE cl3.city END AS cidade_origem_venda,
+  CASE WHEN LEFT(so.type_location::text, 2) = 'LO' THEN l3.uf ELSE cl3.uf END AS uf_origem_venda,
+  CASE WHEN RIGHT(so.type_location::text, 2) = 'TY' THEN l4.city ELSE cl4.city END AS cidade_destino_venda,
+  CASE WHEN RIGHT(so.type_location::text, 2) = 'TY' THEN l4.uf ELSE cl4.uf END AS uf_destino_venda,
+  sc."name" AS transportadora_venda
 FROM match_offers_routes mor 
 LEFT JOIN idleness i ON i.id = mor.purchase_offer_id 
 LEFT JOIN sales_offers so ON so.id = mor.sale_offer_id 
@@ -52,49 +52,57 @@ LEFT JOIN client cl ON cl.id = i.id_client_origin
 LEFT JOIN client cl2 ON cl2.id = i.id_client_destination
 LEFT JOIN client cl3 ON cl3.id = so.origin_id
 LEFT JOIN client cl4 ON cl4.id = so.destination_id
-left JOIN shipping_company sc on sc.id = sost.shipping_id
-WHERE mor.deleted_at IS NULL AND i."deletedAt" IS NULL AND sost.deleted_at IS null and c.status = 'active' and c2.status = 'active' and i.status = 'active' and sost.is_active = true
+LEFT JOIN shipping_company sc ON sc.id = sost.shipping_id
+WHERE mor.deleted_at IS NULL 
+  AND i."deletedAt" IS NULL 
+  AND sost.deleted_at IS NULL 
+  AND c.status = 'active' 
+  AND c2.status = 'active' 
+  AND i.status = 'active' 
+  AND sost.is_active = TRUE
+
 UNION ALL
+
 -- BLOCO VENDA COMO REFERÊNCIA
 SELECT 
-  mor.id as match_id,
-  'Venda' as tipo_referencia,
-  c2.trade_name as embarcador_referencia,
-  c.trade_name as embarcador_com_match,
-  mor.updated_at::date as data_atualizacao,
-  mor.backhaul_type as tipo_backhaul,
-  mor.sale_offer_co2 as co2_evitado,
-  mor.vehicle_score as score_veiculo,
-  mor.origin_distance_score as score_origem,
-  mor.destination_distance_score as destino_score,
-  mor.total_distance_origin as desvio_origem,
-  mor.total_distance_destination as desvio_destino,
-  (mor.total_distance_origin + mor.total_distance_destination) as desvio_total,
-  mor.distance_purchase_offer as distancia_oferta_compra,
-  mor.distance_sale_offer as distancia_oferta_venda,
-  mor.purchase_offer_id as id_oferta_compra,
-  i.operation_type as operacao_compra,
-  c.trade_name as embarcador_comprador,
-  i.frequency as frequencia_compra,
-  i.freight_value as valor_compra,
-  i.vehicle_type as tipo_veiculo_compra,
-  i.category as categoria_veiculo_compra,
-  case when i.id_client_origin is null then l.city else cl.city end as cidade_origem_compra,
-  case when i.id_client_origin is null then l.uf else cl.uf end as uf_origem_compra,
-  case when i.id_client_destination is null then l2.city else cl2.city end as cidade_destino_compra,
-  case when i.id_client_destination is null then l2.uf else cl2.uf end as uf_destino_compra,
-  mor.sale_offer_shipper_tariff_id as id_oferta_venda,
-  so.operation_type as operacao_venda,
-  c2.trade_name as embarcador_vendedor,
-  sost.frequency as frequencia_venda,
-  sost.value_total as valor_venda,
-  sost.vehicle_type as tipo_veiculo_venda,
-  sost.vehicle_category as categoria_veiculo_venda,
-  case when LEFT(so.type_location::text, 2) = 'LO' then l3.city else cl3.city end as cidade_origem_venda,
-  case when LEFT(so.type_location::text, 2) = 'LO' then l3.uf else cl3.uf end as uf_origem_venda,
-  case when RIGHT(so.type_location::text, 2) = 'TY' then l4.city else cl4.city end as cidade_destino_venda,
-  case when RIGHT(so.type_location::text, 2) = 'TY' then l4.uf else cl4.uf end as uf_destino_venda,
-  sc."name" as transportadora_venda
+  mor.id AS match_id,
+  'Venda' AS tipo_referencia,
+  c2.trade_name AS embarcador_referencia,
+  c.trade_name AS embarcador_com_match,
+  mor.updated_at::date AS data_atualizacao,
+  mor.backhaul_type AS tipo_backhaul,
+  mor.sale_offer_co2 AS co2_evitado,
+  mor.vehicle_score AS score_veiculo,
+  mor.origin_distance_score AS score_origem,
+  mor.destination_distance_score AS destino_score,
+  mor.total_distance_origin AS desvio_origem,
+  mor.total_distance_destination AS desvio_destino,
+  (mor.total_distance_origin + mor.total_distance_destination) AS desvio_total,
+  mor.distance_purchase_offer AS distancia_oferta_compra,
+  mor.distance_sale_offer AS distancia_oferta_venda,
+  mor.purchase_offer_id AS id_oferta_compra,
+  i.operation_type AS operacao_compra,
+  c.trade_name AS embarcador_comprador,
+  i.frequency AS frequencia_compra,
+  i.freight_value AS valor_compra,
+  i.vehicle_type AS tipo_veiculo_compra,
+  i.category AS categoria_veiculo_compra,
+  CASE WHEN i.id_client_origin IS NULL THEN l.city ELSE cl.city END AS cidade_origem_compra,
+  CASE WHEN i.id_client_origin IS NULL THEN l.uf ELSE cl.uf END AS uf_origem_compra,
+  CASE WHEN i.id_client_destination IS NULL THEN l2.city ELSE cl2.city END AS cidade_destino_compra,
+  CASE WHEN i.id_client_destination IS NULL THEN l2.uf ELSE cl2.uf END AS uf_destino_compra,
+  mor.sale_offer_shipper_tariff_id AS id_oferta_venda,
+  so.operation_type AS operacao_venda,
+  c2.trade_name AS embarcador_vendedor,
+  sost.frequency AS frequencia_venda,
+  sost.value_total AS valor_venda,
+  sost.vehicle_type AS tipo_veiculo_venda,
+  sost.vehicle_category AS categoria_veiculo_venda,
+  CASE WHEN LEFT(so.type_location::text, 2) = 'LO' THEN l3.city ELSE cl3.city END AS cidade_origem_venda,
+  CASE WHEN LEFT(so.type_location::text, 2) = 'LO' THEN l3.uf ELSE cl3.uf END AS uf_origem_venda,
+  CASE WHEN RIGHT(so.type_location::text, 2) = 'TY' THEN l4.city ELSE cl4.city END AS cidade_destino_venda,
+  CASE WHEN RIGHT(so.type_location::text, 2) = 'TY' THEN l4.uf ELSE cl4.uf END AS uf_destino_venda,
+  sc."name" AS transportadora_venda
 FROM match_offers_routes mor 
 LEFT JOIN idleness i ON i.id = mor.purchase_offer_id 
 LEFT JOIN sales_offers so ON so.id = mor.sale_offer_id 
@@ -109,6 +117,12 @@ LEFT JOIN client cl ON cl.id = i.id_client_origin
 LEFT JOIN client cl2 ON cl2.id = i.id_client_destination
 LEFT JOIN client cl3 ON cl3.id = so.origin_id
 LEFT JOIN client cl4 ON cl4.id = so.destination_id
-left JOIN shipping_company sc on sc.id = sost.shipping_id
-WHERE mor.deleted_at IS NULL AND i."deletedAt" IS NULL AND sost.deleted_at IS NULL and c.status = 'active' and c2.status = 'active' and i.status = 'active' and sost.is_active = true
-order by match_id desc
+LEFT JOIN shipping_company sc ON sc.id = sost.shipping_id
+WHERE mor.deleted_at IS NULL 
+  AND i."deletedAt" IS NULL 
+  AND sost.deleted_at IS NULL 
+  AND c.status = 'active' 
+  AND c2.status = 'active' 
+  AND i.status = 'active' 
+  AND sost.is_active = TRUE
+ORDER BY match_id DESC
