@@ -8,24 +8,24 @@ WITH ofertas_consolidadas AS (
   -- BLOCO 1: OFERTAS DE COMPRA (OCIOSIDADE)
   SELECT 
     'COMPRA' AS tipo_oferta,
-    i.id AS offer_id, 
+    i.id AS oferta_id, 
     i.created_at::date AS data_criacao, 
-    i.status AS offer_is_active, 
-    i.operation_type::text AS operation_type, 
-    i.company_id,
-    c.trade_name AS company_name,
-    CASE WHEN i.id_client_origin IS NULL THEN 'LOCALITY' ELSE 'CLIENT' END AS origin_local_type,
-    CASE WHEN i.id_client_origin IS NULL THEN i.id_locality_origin ELSE i.id_client_origin END AS origin_id,
-    CASE WHEN i.id_client_origin IS NULL THEN l.city ELSE cl.city END AS origin_city,
-    CASE WHEN i.id_client_origin IS NULL THEN l.uf ELSE cl.uf END AS origin_uf,
-    CASE WHEN i.id_client_destination IS NULL THEN 'LOCALITY' ELSE 'CLIENT' END AS destination_local_type,
-    CASE WHEN i.id_client_destination IS NULL THEN i.id_locality_destination ELSE i.id_client_destination END AS destination_id,
-    CASE WHEN i.id_client_destination IS NULL THEN l2.city ELSE cl2.city END AS destination_city,
-    CASE WHEN i.id_client_destination IS NULL THEN l2.uf ELSE cl2.uf END AS destination_uf,
-    i.vehicle_type::text AS vehicle_type, 
-    i.category::text AS vehicle_category, 
-    i.frequency::numeric AS frequency, 
-    i.freight_value::numeric AS offer_value
+    UPPER(i.status) AS oferta_ativa, 
+    UPPER(i.operation_type::text) AS tipo_operacao, 
+    i.company_id AS empresa_id,
+    UPPER(c.trade_name) AS empresa_nome,
+    CASE WHEN i.id_client_origin IS NULL THEN 'LOCALITY' ELSE 'CLIENT' END AS tipo_local_origem,
+    CASE WHEN i.id_client_origin IS NULL THEN i.id_locality_origin ELSE i.id_client_origin END AS origem_id,
+    UPPER(CASE WHEN i.id_client_origin IS NULL THEN l.city ELSE cl.city END) AS cidade_origem,
+    UPPER(CASE WHEN i.id_client_origin IS NULL THEN l.uf ELSE cl.uf END) AS uf_origem,
+    CASE WHEN i.id_client_destination IS NULL THEN 'LOCALITY' ELSE 'CLIENT' END AS tipo_local_destino,
+    CASE WHEN i.id_client_destination IS NULL THEN i.id_locality_destination ELSE i.id_client_destination END AS destino_id,
+    UPPER(CASE WHEN i.id_client_destination IS NULL THEN l2.city ELSE cl2.city END) AS cidade_destino,
+    UPPER(CASE WHEN i.id_client_destination IS NULL THEN l2.uf ELSE cl2.uf END) AS uf_destino,
+    UPPER(i.vehicle_type::text) AS tipo_veiculo, 
+    UPPER(i.category::text) AS categoria_veiculo, 
+    i.frequency::numeric AS frequencia, 
+    i.freight_value::numeric AS valor_oferta
   FROM idleness i
   LEFT JOIN company c ON c.id = i.company_id
   LEFT JOIN client cl ON cl.id = i.id_client_origin 
@@ -39,24 +39,24 @@ WITH ofertas_consolidadas AS (
   -- BLOCO 2: OFERTAS DE VENDA
   SELECT 
     'VENDA' AS tipo_oferta,
-    sost.id AS offer_id, 
-    sost.created_at::date AS data_criacao,
-    CASE WHEN sost.is_active IS TRUE THEN 'active' ELSE 'inactive' END AS offer_is_active,
-    so.operation_type::text AS operation_type, 
-    so.company_id, 
-    c.trade_name AS company_name, 
-    CASE WHEN so.type_location = 'CLIENT_CLIENT' OR so.type_location = 'CLIENT_LOCALITY' THEN 'CLIENT' ELSE 'LOCALITY' END AS origin_local_type,
-    so.origin_id, 
-    CASE WHEN so.type_location = 'CLIENT_CLIENT' OR so.type_location = 'CLIENT_LOCALITY' THEN cl.city ELSE l.city END AS origin_city,
-    CASE WHEN so.type_location = 'CLIENT_CLIENT' OR so.type_location = 'CLIENT_LOCALITY' THEN cl.uf ELSE l.uf END AS origin_uf,
-    CASE WHEN so.type_location = 'CLIENT_CLIENT' OR so.type_location = 'LOCALITY_CLIENT' THEN 'CLIENT' ELSE 'LOCALITY' END AS destination_local_type,
-    so.destination_id,
-    CASE WHEN so.type_location = 'CLIENT_CLIENT' OR so.type_location = 'LOCALITY_CLIENT' THEN cl2.city ELSE l2.city END AS destination_city,
-    CASE WHEN so.type_location = 'CLIENT_CLIENT' OR so.type_location = 'LOCALITY_CLIENT' THEN cl2.uf ELSE l2.uf END AS destination_uf,
-    sost.vehicle_type::text AS vehicle_type, 
-    sost.vehicle_category::text AS vehicle_category, 
-    sost.frequency::numeric AS frequency, 
-    sost.value_total::numeric AS offer_value
+    sost.id AS oferta_id, 
+    sost.created_at::date AS data_criacao, 
+    CASE WHEN sost.is_active IS TRUE THEN 'ACTIVE' ELSE 'INACTIVE' END AS oferta_ativa, 
+    UPPER(so.operation_type::text) AS tipo_operacao, 
+    so.company_id AS empresa_id,
+    UPPER(c.trade_name) AS empresa_nome,
+    CASE WHEN so.type_location = 'CLIENT_CLIENT' OR so.type_location = 'CLIENT_LOCALITY' THEN 'CLIENT' ELSE 'LOCALITY' END AS tipo_local_origem,
+    so.origin_id AS origem_id,
+    UPPER(CASE WHEN so.type_location = 'CLIENT_CLIENT' OR so.type_location = 'CLIENT_LOCALITY' THEN cl.city ELSE l.city END) AS cidade_origem,
+    UPPER(CASE WHEN so.type_location = 'CLIENT_CLIENT' OR so.type_location = 'CLIENT_LOCALITY' THEN cl.uf ELSE l.uf END) AS uf_origem,
+    CASE WHEN so.type_location = 'CLIENT_CLIENT' OR so.type_location = 'LOCALITY_CLIENT' THEN 'CLIENT' ELSE 'LOCALITY' END AS tipo_local_destino,
+    so.destination_id AS destino_id,
+    UPPER(CASE WHEN so.type_location = 'CLIENT_CLIENT' OR so.type_location = 'LOCALITY_CLIENT' THEN cl2.city ELSE l2.city END) AS cidade_destino,
+    UPPER(CASE WHEN so.type_location = 'CLIENT_CLIENT' OR so.type_location = 'LOCALITY_CLIENT' THEN cl2.uf ELSE l2.uf END) AS uf_destino,
+    UPPER(sost.vehicle_type::text) AS tipo_veiculo, 
+    UPPER(sost.vehicle_category::text) AS categoria_veiculo, 
+    sost.frequency::numeric AS frequencia, 
+    sost.value_total::numeric AS valor_oferta
   FROM sales_offers_shippers_tariff sost
   LEFT JOIN sales_offers_shippers sos ON sos.id = sost.sale_offer_shipper_id 
   LEFT JOIN sales_offers so ON so.id = sos.sale_offer_id
@@ -70,30 +70,30 @@ WITH ofertas_consolidadas AS (
 -- Agrupamento e Métricas
 SELECT 
   tipo_oferta,
-  operation_type,
-  company_id,
-  company_name,
-  origin_city,
-  origin_uf,
-  destination_city,
-  destination_uf,
-  vehicle_type,
-  vehicle_category,
-  COUNT(offer_id) AS quantidade_de_ofertas,
-  SUM(frequency) AS total_viagens,
-  AVG(offer_value) AS valor_medio
+  tipo_operacao,
+  empresa_id,
+  empresa_nome,
+  cidade_origem,
+  uf_origem,
+  cidade_destino,
+  uf_destino,
+  tipo_veiculo,
+  categoria_veiculo,
+  COUNT(oferta_id) AS quantidade_de_ofertas,
+  SUM(frequencia) AS total_viagens,
+  AVG(valor_oferta) AS valor_medio
 FROM ofertas_consolidadas
 GROUP BY 
   tipo_oferta,
-  operation_type,
-  company_id,
-  company_name,
-  origin_city,
-  origin_uf,
-  destination_city,
-  destination_uf,
-  vehicle_type,
-  vehicle_category
+  tipo_operacao,
+  empresa_id,
+  empresa_nome,
+  cidade_origem,
+  uf_origem,
+  cidade_destino,
+  uf_destino,
+  tipo_veiculo,
+  categoria_veiculo
 ORDER BY 
   tipo_oferta, 
-  company_name;
+  empresa_nome;
