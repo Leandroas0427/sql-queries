@@ -4,7 +4,7 @@ Granularidade:  1 registro por frete (frete_id)
 */
 -- Base Financeiro
 WITH finance AS (
-SELECT 
+SELECT
 ss.schedule_id AS frete_id, 
 -- Valores de Receita
 MAX(CASE WHEN (ss.name = 'COLETA' OR ss.name = 'DEVOLUCAO_DE_PALLET' OR ss.name = 'TRANSFERENCIA') 
@@ -140,7 +140,7 @@ UPPER(COALESCE(lo.city, clo.city)) AS cidade_origem,
 UPPER(COALESCE(lo.uf, clo.uf)) AS uf_origem,
 UPPER(COALESCE(ld.city, cld.city)) AS cidade_destino, 
 UPPER(COALESCE(ld.uf, cld.uf)) AS uf_destino,
-ROUND(CAST(s.distance AS DECIMAL(18, 4)), 0) AS distancia_km,
+ROUND(CAST(s.distance AS DECIMAL), 0) AS distancia_km,
 UPPER(sc2.name) AS transportadora,
 UPPER(d.name) AS motorista,
 UPPER(ve.placas_veiculo) AS placas_veiculo,
@@ -166,10 +166,10 @@ sld.inicio_descarga,
 sld.fim_descarga,
 s.description_cancel AS motivo_cancelamento,
 -- Informações Financeiras
-ROUND(CAST(finance.rec_valor_frete AS DECIMAL(18, 4)), 1) AS rec_valor_frete,
-ROUND(CAST(finance.rec_total_frete AS DECIMAL(18, 4)), 1) AS rec_total_frete,
-ROUND(CAST(finance.des_valor_frete AS DECIMAL(18, 4)), 1) AS des_valor_frete, 
-ROUND(CAST(finance.des_total_frete AS DECIMAL(18, 4)), 1) AS des_total_frete,
+ROUND(CAST(finance.rec_valor_frete AS DECIMAL), 1) AS rec_valor_frete,
+ROUND(CAST(finance.rec_total_frete AS DECIMAL), 1) AS rec_total_frete,
+ROUND(CAST(finance.des_valor_frete AS DECIMAL), 1) AS des_valor_frete, 
+ROUND(CAST(finance.des_total_frete AS DECIMAL), 1) AS des_total_frete,
 -- Indicadores de SLA
 sla.load_on_time, 
 sla.load_tmo, 
