@@ -1,6 +1,6 @@
 # sql-queries
 
-Este repositório reúne consultas SQL desenvolvidas para extração, tratamento, unificação e cruzamento de dados do setor logístico[cite: 6].
+Este repositório reúne consultas SQL desenvolvidas para extração, tratamento, unificação e cruzamento de dados.
 
 ## Índice de Scripts e Conceitos
 
