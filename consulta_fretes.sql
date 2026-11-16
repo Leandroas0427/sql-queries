@@ -1,6 +1,6 @@
 /*
-Descrição:      Consulta analítica de fretes (SLA, Operacional e Financeiro)
-Granularidade:  1 registro por frete (frete_id)
+Descrição: Consulta analítica de fretes (SLA, Operacional e Financeiro)
+Granularidade: 1 registro por frete (frete_id)
 */
 -- Base Financeiro
 WITH finance AS (
@@ -52,12 +52,12 @@ frete_id, agendamento_carregamento, chegada_carregamento, fim_coleta, agendament
 CASE 
 	WHEN chegada_carregamento >= agendamento_carregamento THEN chegada_carregamento 
 	ELSE agendamento_carregamento 
-	END AS ref_inicio_carga,
+END AS ref_inicio_carga,
 -- Maior data entre chegada e agendamento (Descarga)
 CASE 
 	WHEN chegada_descarga >= agendamento_descarga THEN chegada_descarga 
 	ELSE agendamento_descarga 
-	END AS ref_inicio_descarga
+END AS ref_inicio_descarga
 FROM sla_datas
 ),
 -- Métricas e Indicadores de SLA
@@ -69,7 +69,7 @@ CASE
 	WHEN chegada_carregamento IS NULL OR agendamento_carregamento IS NULL THEN NULL 
 	WHEN chegada_carregamento <= agendamento_carregamento THEN 1 
 	ELSE 0 
-	END AS load_on_time,
+END AS load_on_time,
 -- 2. Load TMO (Horas e Flag <= 5h)
 -- TMO: Converte dias (*86400), horas (*3600), minutos (*60) e segundos do intervalo em total de segundos  e divide por 3600.0.
 CASE
@@ -78,7 +78,7 @@ CASE
 	EXTRACT(HOUR FROM (fim_coleta - ref_inicio_carga)) * 3600.0 + 
 	EXTRACT(MINUTE FROM (fim_coleta - ref_inicio_carga)) * 60.0 + 
 	EXTRACT(SECOND FROM (fim_coleta - ref_inicio_carga))) / 3600.0, 2)
-    END AS load_tmo_horas,
+END AS load_tmo_horas,
 CASE 
 	WHEN fim_coleta IS NULL OR chegada_carregamento IS NULL OR agendamento_carregamento IS NULL THEN NULL 
     WHEN ((EXTRACT(DAY FROM (fim_coleta - ref_inicio_carga)) * 86400.0 + 
@@ -86,13 +86,13 @@ CASE
     EXTRACT(MINUTE FROM (fim_coleta - ref_inicio_carga)) * 60.0 + 
     EXTRACT(SECOND FROM (fim_coleta - ref_inicio_carga))) / 3600.0) <= 5.0 THEN 1 
     ELSE 0 
-    END AS load_tmo,
+END AS load_tmo,
 -- 3. Unload On Time (1 = no prazo, 0 = atrasado)
 CASE 
 	WHEN chegada_descarga IS NULL OR agendamento_descarga IS NULL THEN NULL 
 	WHEN chegada_descarga <= agendamento_descarga THEN 1 
 	ELSE 0 
-	END AS unload_on_time,
+END AS unload_on_time,
 -- 4. Unload TMO (Horas e Flag <= 5h)
 -- TMO: Converte dias (*86400), horas (*3600), minutos (*60) e segundos do intervalo em total de segundos  e divide por 3600.0.
 CASE 
@@ -101,7 +101,7 @@ CASE
     EXTRACT(HOUR FROM (fim_descarga - ref_inicio_descarga)) * 3600.0 + 
     EXTRACT(MINUTE FROM (fim_descarga - ref_inicio_descarga)) * 60.0 + 
     EXTRACT(SECOND FROM (fim_descarga - ref_inicio_descarga))) / 3600.0, 2)
-    END AS unload_tmo_horas,
+END AS unload_tmo_horas,
 CASE 
 	WHEN fim_descarga IS NULL OR chegada_descarga IS NULL OR agendamento_descarga IS NULL THEN NULL 
 	WHEN ((EXTRACT(DAY FROM (fim_descarga - ref_inicio_descarga)) * 86400.0 + 
@@ -109,7 +109,7 @@ CASE
 	EXTRACT(MINUTE FROM (fim_descarga - ref_inicio_descarga)) * 60.0 + 
 	EXTRACT(SECOND FROM (fim_descarga - ref_inicio_descarga))) / 3600.0) <= 5.0 THEN 1 
 	ELSE 0 
-    END AS unload_tmo
+END AS unload_tmo
 FROM sla_intervalos
 ),
 -- Histórico e Ordenação de Veículos Alocados
@@ -129,11 +129,11 @@ CASE
 	WHEN s.operation = 'SPOT' THEN UPPER(c.trade_name) 
 	WHEN s.operation = 'TRACKING' THEN UPPER(c.trade_name) 
 	ELSE UPPER(cb.trade_name) 
-	END AS embarcador_comprador,
+END AS embarcador_comprador,
 CASE 
 	WHEN s.operation = 'SPOT' OR s.operation = 'TRACKING' THEN '' 
 	ELSE UPPER(c.name) 
-	END AS embarcador_vendedor,
+END AS embarcador_vendedor,
 UPPER(s.operation) AS tipo_operacao,
 UPPER(sc.operation_type) AS tipo_viagem,
 UPPER(COALESCE(lo.city, clo.city)) AS cidade_origem, 
