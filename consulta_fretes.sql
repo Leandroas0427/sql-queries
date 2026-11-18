@@ -117,10 +117,10 @@ veiculos AS (
 SELECT 
 s.id AS frete_id, 
 avsh.combination_id AS placas_veiculo,
-ROW_NUMBER() OVER (PARTITION BY s.id ORDER BY avsh.created_at DESC) AS ranking_alocacao
+ROW_NUMBER() OVER (PARTITION BY s.id ORDER BY MAX(avsh.created_at) DESC) AS ranking_alocacao
 FROM schedule s 
 LEFT JOIN allocated_vehicles_schedules_history avsh ON s.id = avsh.schedule_id 
-LEFT JOIN vehicle v ON v.id = avsh.vehicle_id
+GROUP BY s.id, avsh.combination_id
 )
 -- Consulta Principal: Informações Consolidadas do Frete
 SELECT 
@@ -132,7 +132,7 @@ CASE
 END AS embarcador_comprador,
 CASE 
 	WHEN s.operation = 'SPOT' OR s.operation = 'TRACKING' THEN '' 
-	ELSE UPPER(c.name) 
+	ELSE UPPER(c.trade_name) 
 END AS embarcador_vendedor,
 UPPER(s.operation) AS tipo_operacao,
 UPPER(sc.operation_type) AS tipo_viagem,
@@ -178,7 +178,6 @@ sla.unload_on_time,
 sla.unload_tmo, 
 sla.unload_tmo_horas
 FROM schedule s 
-LEFT JOIN schedule_planned_dates spd ON spd.schedule_id = s.id 
 LEFT JOIN schedule_details sd ON sd.id = s.schedule_details_id
 LEFT JOIN company c ON s.company_id = c.id 
 LEFT JOIN company cb ON s.company_id_buyer = cb.id 
@@ -190,7 +189,7 @@ LEFT JOIN status_codes sco ON s.status_code = sco.status_code
 LEFT JOIN finance ON finance.frete_id = s.id
 LEFT JOIN sla_datas sld ON sld.frete_id = s.id
 LEFT JOIN sla_metrics sla ON sla.frete_id = s.id
-LEFT JOIN veiculos ve ON ve.frete_id = s.id
+LEFT JOIN veiculos ve ON ve.frete_id = s.id AND ve.ranking_alocacao = 1
 LEFT JOIN schedule_client sc3 ON s.schedule_client_origin_id = sc3.id 
 LEFT JOIN client clo ON sc3.client_id = clo.id 
 LEFT JOIN locality lo ON sc3.locality_id = lo.id
